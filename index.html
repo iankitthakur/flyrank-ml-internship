@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A readable rule held up against learned models when validation was honest</title>
+<style>
+:root{--ink:#1b2430;--mute:#5b6675;--rule:#d5dbe3;--bg:#fff;--acc:#0f6b6e;--acc2:#b9c9cc;--wash:#f1f5f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1.05rem/1.7 Georgia,"Times New Roman",serif}
+.wrap{max-width:64rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:13rem minmax(0,44rem);gap:2.5rem}
+main{padding:3rem 0 4rem;min-width:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+header,h2{scroll-margin-top:1.5rem}
+nav{position:sticky;top:0;align-self:start;padding:3rem 0 2rem;font:.9rem/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+nav b{display:block;margin-bottom:.6rem;font-weight:600}
+nav a{display:block;padding:.3rem .7rem;color:var(--mute);text-decoration:none;border-left:2px solid var(--rule)}
+nav a:hover{color:var(--ink)}
+nav a[aria-current]{color:var(--acc);border-left-color:var(--acc);font-weight:600}
+@media (max-width:56rem){.wrap{display:block}nav{position:static;padding:1.5rem 0 0}nav a{display:inline-block;border:0;padding:.2rem .8rem .2rem 0}nav a[aria-current]{text-decoration:underline}}
+h1{font:700 2.1rem/1.2 Georgia,serif;margin:0 0 .6rem}
+h2{font:700 1.35rem/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;margin:2.6rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--rule)}
+h3{font:600 1.05rem system-ui,sans-serif;margin:1.4rem 0 .2rem}
+p{margin:.7rem 0}
+.by{color:var(--mute);font:.95rem system-ui,sans-serif;margin:0 0 1.6rem}
+.abs{background:var(--wash);border-left:3px solid var(--acc);padding:.9rem 1.1rem;margin:1rem 0 2rem}
+.abs p{margin:0}
+a{color:var(--acc)}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.tw{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font:.9rem/1.4 system-ui,sans-serif}
+th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{border-bottom:2px solid var(--ink);font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}
+caption{caption-side:bottom;text-align:left;color:var(--mute);padding-top:.5rem;font-size:.85rem}
+figure{margin:1.5rem 0}
+figcaption{color:var(--mute);font:.85rem/1.5 system-ui,sans-serif;margin-top:.4rem}
+img{max-width:100%;height:auto}
+.ch{font:.88rem system-ui,sans-serif;margin:.5rem 0}
+.row{display:grid;grid-template-columns:8.5rem 1fr;gap:.6rem;align-items:center;margin:.55rem 0}
+.trk{position:relative;padding:.1rem 0}
+.bar{height:.8rem;margin:.18rem 0;display:flex;align-items:center}
+.bar i{display:block;height:100%;background:var(--acc2)}
+.bar.g i{background:var(--acc)}
+.bar b{font-weight:600;margin-left:.4rem;font-size:.8rem;white-space:nowrap}
+.base{position:absolute;top:0;bottom:0;left:54.8%;border-left:1px dashed var(--mute)}
+.key{display:flex;gap:1.2rem;flex-wrap:wrap;color:var(--mute);margin-top:.6rem}
+.key span::before{content:"";display:inline-block;width:.8rem;height:.8rem;margin-right:.35rem;vertical-align:-.1rem;background:var(--acc2)}
+.key span.g::before{background:var(--acc)}
+ul{padding-left:1.2rem}
+code{font:.88em ui-monospace,Consolas,monospace;background:var(--wash);padding:.05rem .25rem}
+footer{margin-top:3rem;color:var(--mute);font:.85rem system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav aria-label="Paper sections"><b>On this page</b>
+<a href="#abstract">Abstract</a>
+<a href="#introduction">Introduction</a>
+<a href="#data">Data</a>
+<a href="#methodology">Methodology</a>
+<a href="#results">Results</a>
+<a href="#limitations">Limitations</a>
+<a href="#recommendations">Recommendations</a>
+<a href="#reproducibility">Reproducibility</a>
+<a href="#acknowledgments">Acknowledgments</a>
+</nav>
+<main>
+<header id="abstract">
+<h1>A readable rule held up against learned models once validation was honest</h1>
+<p class="by">Ankit Thakur · FlyRank ML Internship capstone · October 2026 · Refresh / content opportunity scoring lane</p>
+<div class="abs"><p><b>Abstract.</b> Which content pages lose search impressions in the second half of a month, and can early-month signals rank them better than a simple rule? Using 9.8 million daily Search Console rows from March 2026 (a 2,191-page sample), I built five features from 1–15 March and a label from 16–31 March, then compared logistic regression and a random forest with a readable peer-CTR baseline. Under a split grouped by client, no model clearly beat the baseline: Precision@50 was 0.38 and 0.22 for the models and 0.40 for the rule, against a 0.329 base rate (observed). A random split made the learned models look better (forest AUC 0.632 against 0.555), which shows how validation design can flatter a model (measured). The outcome is a rule-based, human-reviewed action queue for decision-support, with no causal claim.</p></div>
+</header>
+
+<h2 id="introduction">1 Introduction</h2>
+<p>A content team can review only a limited number of pages each week, so the useful question is which pages to look at first. I frame it as a ranking problem: for each page, estimate whether its impressions will fall in the second half of the month, and order pages by that estimate. The output supports one decision, which pages an editor opens first. It does not say why a page fell and it does not say any edit would help.</p>
+
+<h2 id="data">2 Data</h2>
+<p>The analysis uses the FlyRank Internship Warehouse release (v20260703), a pseudonymized dataset on Hugging Face with gated access. I used one table, <code>fact_content_daily_performance</code> (one row per report date, client and content item), for the month 2026-03. All identifiers are hashed, and no client names, domains, URLs or queries appear in this paper.</p>
+<div class="tw"><table>
+<caption>Table 1. The March 2026 slice, as measured by three checks on the table.</caption>
+<tr><th>Check</th><th class="n">Result</th></tr>
+<tr><td>Grain: rows vs unique (date, client, page) keys</td><td class="n">9,841,378 = 9,841,378</td></tr>
+<tr><td>Span, clients, pages</td><td class="n">1–31 March · 55 clients · 331,437 pages</td></tr>
+<tr><td>Rows with Search Console data (<code>IS TRUE</code>)</td><td class="n">3,611,061 (about 37%)</td></tr>
+<tr><td>Rows with GA4 data (<code>IS TRUE</code>)</td><td class="n">413,966 (about 4%)</td></tr>
+</table></div>
+<p><b>What I excluded, and why.</b> Rows without Search Console data, because a missing value is not a zero. All GA4 columns, because they exist for only about 4% of rows. Pages with fewer than 20 impressions in 1–15 March, because their rates are mostly noise. June 2026, which I kept sealed as a test month and never used to build the label. To fit in a notebook I used a 2% hash sample of pages, which leaves 2,191 pages, of which 32.9% carry the declining label.</p>
+
+<h2 id="methodology">3 Methodology</h2>
+<p><b>Decision moment and features.</b> A reviewer looks at the queue at the end of 15 March, so every input uses only 1–15 March: early impressions, early clicks, early CTR, early average position and the number of active days.</p>
+<p><b>Label.</b> A page is labelled declining when its impressions per day in 16–31 March fall below 80% of its rate in 1–15 March. This is a defined rule on observed traffic and a proxy for “worth a human look”, not a measure of decay.</p>
+<p><b>Baseline.</b> A readable rule: score each page by the clicks it earned below what pages at the same average position earned (position groups 1–3, 4–10, 11–20), with peer CTR learned on training folds only. Each page gets a reason code and an action.</p>
+<p><b>Models and validation.</b> Logistic regression and a random forest (200 trees, depth 5) are compared with the rule on the same pages, using five folds grouped by client, so no client appears in both training and test data. As a “before” comparison I also ran ordinary random folds, in which nearly every test client was also in training.</p>
+<p><b>Leakage checks.</b> Every feature was checked as knowable at the decision moment. I added a column built from the label window on purpose: AUC rose from 0.555 to 1.0, the usual fingerprint of leakage, and I removed it. With shuffled labels AUC fell to 0.487, close to 0.5. Taking the baseline’s peer CTR from all pages instead of the training folds moved Precision@50 from 0.40 to 0.38, so that choice did not leak in any visible way.</p>
+
+<h2 id="results">4 Results</h2>
+<p>Figure 1 shows the main finding. The learned models looked better under a random split and lost that advantage once clients were kept apart. The rule hardly moved, because it learns only four peer-CTR values.</p>
+<figure>
+<div class="ch" role="img" aria-label="Precision at 50 for logistic regression, random forest and the rule under random and grouped splits. Random: 0.44, 0.54, 0.38. Grouped: 0.38, 0.22, 0.40. Base rate 0.329.">
+<div class="row"><span>Logistic regression</span><div class="trk"><div class="base"></div>
+<div class="bar"><i style="width:73.3%"></i><b>0.44</b></div><div class="bar g"><i style="width:63.3%"></i><b>0.38</b></div></div></div>
+<div class="row"><span>Random forest</span><div class="trk"><div class="base"></div>
+<div class="bar"><i style="width:90%"></i><b>0.54</b></div><div class="bar g"><i style="width:36.7%"></i><b>0.22</b></div></div></div>
+<div class="row"><span>Peer-CTR rule</span><div class="trk"><div class="base"></div>
+<div class="bar"><i style="width:63.3%"></i><b>0.38</b></div><div class="bar g"><i style="width:66.7%"></i><b>0.40</b></div></div></div>
+<div class="key"><span>Random split</span><span class="g">Grouped by client</span><span>Dashed line: base rate 0.329</span></div>
+</div>
+<figcaption>Figure 1. Precision@50 on the same 2,191 pages (observed). With only 50 pages, Precision@50 moves about 7 points by chance.</figcaption>
+</figure>
+<div class="tw"><table>
+<caption>Table 2. Same pages, same metrics, two splits. Base rate 0.329.</caption>
+<tr><th>Split</th><th>System</th><th class="n">AUC</th><th class="n">Precision@50</th><th class="n">Precision@100</th></tr>
+<tr><td>Random</td><td>Logistic regression</td><td class="n">0.598</td><td class="n">0.44</td><td class="n">0.52</td></tr>
+<tr><td>Random</td><td>Random forest</td><td class="n">0.632</td><td class="n">0.54</td><td class="n">0.50</td></tr>
+<tr><td>Random</td><td>Peer-CTR rule</td><td class="n">0.570</td><td class="n">0.38</td><td class="n">0.42</td></tr>
+<tr><td>Grouped</td><td>Logistic regression</td><td class="n">0.560</td><td class="n">0.38</td><td class="n">0.39</td></tr>
+<tr><td>Grouped</td><td>Random forest</td><td class="n">0.555</td><td class="n">0.22</td><td class="n">0.32</td></tr>
+<tr><td>Grouped</td><td>Peer-CTR rule</td><td class="n">0.572</td><td class="n">0.40</td><td class="n">0.43</td></tr>
+</table></div>
+<p><b>Interpretation (directional).</b> Under the honest split, every AUC is between 0.555 and 0.572, so these five early signals carry only weak information about decline, and a rule an editor can read does as well as the models. The random forest leans most on early CTR and early position (permutation importance 0.095 and 0.041 on one fold), the same two signals the rule uses.</p>
+<p><b>What the errors look like.</b> Of logistic regression’s top 50 pages, 31 did not decline. Many are large pages with a CTR close to zero, and several grew by 12% to 94% in the second half, so low CTR on a big page is not the same as a declining page. The missed declines are mostly pages with a moderate CTR for their position that still fell 38% to 65%.</p>
+
+<h2 id="limitations">5 Limitations and honest framing</h2>
+<ul>
+<li>One month (March 2026) and about 2,200 pages from a 2% hash sample; another month could differ.</li>
+<li>Search Console signals only; GA4 covers about 4% of rows, so nothing here speaks to on-site behaviour.</li>
+<li>The split is by client within one month, not across time.</li>
+<li>The label is a proxy and includes regression to the mean: high-impression pages are likelier to fall back.</li>
+<li>Peer CTR is estimated from the same sample it scores.</li>
+<li>No causal claim is made. Nothing here shows that an edit would recover traffic or how Google ranks pages.</li>
+</ul>
+
+<h2 id="recommendations">6 Ranked recommendations</h2>
+<p>The playbook is built on the rule rather than a model, because no model clearly beat it and an editor can read it. Each page in the queue gets a score (clicks below same-position peers), one reason code and one action. The queue holds 1,032 of the 2,191 pages, and the top 50 had Precision@50 of 0.40 against a 0.329 base rate (observed; a gap of about 7 points is within chance for 50 pages).</p>
+<div class="tw"><table>
+<caption>Table 3. Archetypes, actions and the observed decline rate in 16–31 March (overall 32.9%).</caption>
+<tr><th>Archetype</th><th>Reason code</th><th>Action (human review required unless noted)</th><th class="n">Pages</th><th class="n">Declined</th></tr>
+<tr><td>Top-10 under-clicker</td><td><code>CTR_BELOW_PEERS_TOP10</code></td><td>Rewrite title and meta description</td><td class="n">618</td><td class="n">39.0%</td></tr>
+<tr><td>Page-2 under-clicker</td><td><code>CTR_BELOW_PEERS_PAGE2</code></td><td>Improve content depth and intent match</td><td class="n">210</td><td class="n">34.8%</td></tr>
+<tr><td>Deep under-clicker (21+)</td><td><code>CTR_BELOW_PEERS_DEEP</code></td><td>Review search intent; merge or prune only after a human check</td><td class="n">204</td><td class="n">32.4%</td></tr>
+<tr><td>Low demand</td><td><code>LOW_DEMAND</code></td><td>Monitor only, no review</td><td class="n">635</td><td class="n">33.5%</td></tr>
+<tr><td>At or above peers</td><td><code>AT_OR_ABOVE_PEER_CTR</code></td><td>Protect, no change</td><td class="n">524</td><td class="n">24.2%</td></tr>
+</table></div>
+<p>Top-10 under-clickers declined about 15 points more often than pages at or above peer CTR, which is directional support for putting them first.</p>
+<figure><img src="work/figures/archetype_decline_rate.png" alt="Horizontal bars of the observed decline rate for each archetype, with a dashed line for all pages" width="700">
+<figcaption>Figure 2. Observed decline rate by archetype (n shown beside each bar).</figcaption></figure>
+<h3>Human review</h3>
+<p>A person opens every queued page before any change. They check for recent edits and seasonality, review at most about 50 pages per batch, and record accept or reject with a reason. Reason codes are hints about where to look, not causes.</p>
+<h3>Do not automate</h3>
+<p>Rewriting titles or descriptions; merging, pruning, redirecting or deleting pages; promising traffic recovery; judging an author, team or client by the score; publishing without review; comparing pages across clients as if they shared one baseline.</p>
+<h3>Cost and value</h3>
+<p>Assuming 30 minutes per page, a batch of 50 takes about 25 hours. Random picking would find about 16.4 declining pages in 50 and the queue about 20.0, a difference of 3.6 that is within noise. The value is a consistent, explainable order for review, not extra accuracy.</p>
+<h3>Monitoring</h3>
+<p>Proposed, not tested: recompute Precision@50 each month and revisit the rule if it is within 7 points of that month’s base rate for two months in a row; re-check the label if the declining share moves more than 5 points from 32.9%; re-run the data checks when data availability changes; rebuild the four peer-CTR values monthly.</p>
+
+<h2 id="reproducibility">7 Reproducibility</h2>
+<p>All work is in the <a href="https://github.com/iankitthakur/flyrank-ml-internship">repository</a>. Notebooks are in <a href="https://github.com/iankitthakur/flyrank-ml-internship/tree/main/work/notebooks"><code>work/notebooks</code></a>: framing (<code>w02</code>), data contract (<code>w03</code>), baseline (<code>w04_baseline_score</code>), model comparison (<code>w05</code>), validation audit (<code>w06</code>), action playbook (<code>w07</code>) and <code>capstone</code>. To rerun, request access to the Hugging Face dataset, store a read token as a Colab secret named <code>HF_TOKEN</code>, and run a notebook top to bottom. Rows are sorted before modelling so results repeat. The ranked queue CSV is regenerated by the notebooks and is not committed.</p>
+
+<h2 id="acknowledgments">8 Acknowledgments and data credit</h2>
+<p><a href="https://flyrank.ai">Built on the FlyRank ML Internship dataset</a>, a pseudonymized warehouse release provided by FlyRank for education and research. Thanks to the FlyRank ML Internship team for the sessions and the skeleton notebooks.</p>
+<footer>All claims use observed, measured, directional or decision-support language. No client names, domains, URLs, private queries or raw exports appear in this paper.</footer>
+</main>
+</div>
+<script>
+(function(){var L=[].slice.call(document.querySelectorAll('nav a')),S=L.map(function(a){return document.querySelector(a.getAttribute('href'))});
+if(!('IntersectionObserver' in window))return;
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){L.forEach(function(l){l.removeAttribute('aria-current')});L[S.indexOf(e.target)].setAttribute('aria-current','true')}})},{rootMargin:'0px 0px -75% 0px'});
+S.forEach(function(x){io.observe(x)})})();
+</script>
+</body>
+</html>
