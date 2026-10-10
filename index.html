@@ -86,7 +86,7 @@ footer{margin-top:3rem;color:var(--mute);font:.85rem system-ui,sans-serif}
 <tr><td>Rows with Search Console data (<code>IS TRUE</code>)</td><td class="n">3,611,061 (about 37%)</td></tr>
 <tr><td>Rows with GA4 data (<code>IS TRUE</code>)</td><td class="n">413,966 (about 4%)</td></tr>
 </table></div>
-<p><b>What I excluded, and why.</b> Rows without Search Console data, because a missing value is not a zero. All GA4 columns, because they exist for only about 4% of rows. Pages with fewer than 20 impressions in 1–15 March, because their rates are mostly noise. June 2026, which I kept sealed as a test month and never used to build the label. To fit in a notebook I used a 2% hash sample of pages, which leaves 2,191 pages, of which 32.9% carry the declining label.</p>
+<p><b>What I excluded, and why.</b> Rows without Search Console data, because a missing value is not a zero. All GA4 columns, because they exist for only about 4% of rows. Pages with fewer than 20 impressions in 1–15 March, because their rates are mostly noise. June 2026, which I kept sealed as a test month and never used to build the label. To fit in a notebook I used a 2% hash sample of pages, which leaves 2,191 pages from 31 clients, of which 32.9% carry the declining label.</p>
 
 <h2 id="methodology">3 Methodology</h2>
 <p><b>Decision moment and features.</b> A reviewer looks at the queue at the end of 15 March, so every input uses only 1–15 March: early impressions, early clicks, early CTR, early average position and the number of active days.</p>
@@ -119,7 +119,7 @@ footer{margin-top:3rem;color:var(--mute);font:.85rem system-ui,sans-serif}
 <tr><td>Grouped</td><td>Random forest</td><td class="n">0.555</td><td class="n">0.22</td><td class="n">0.32</td></tr>
 <tr><td>Grouped</td><td>Peer-CTR rule</td><td class="n">0.572</td><td class="n">0.40</td><td class="n">0.43</td></tr>
 </table></div>
-<p><b>Interpretation (directional).</b> Under the honest split, every AUC is between 0.555 and 0.572, so these five early signals carry only weak information about decline, and a rule an editor can read does as well as the models. The random forest leans most on early CTR and early position (permutation importance 0.095 and 0.041 on one fold), the same two signals the rule uses.</p>
+<p><b>Interpretation (directional).</b> Under the honest split, every AUC is between 0.555 and 0.572, so these five early signals carry only weak information about decline, and a rule an editor can read does as well as the models. The random forest leans most on early CTR and early position (permutation importance 0.110 and 0.050 on one fold), the same two signals the rule uses.</p>
 <p><b>What the errors look like.</b> Of logistic regression’s top 50 pages, 31 did not decline. Many are large pages with a CTR close to zero, and several grew by 12% to 94% in the second half, so low CTR on a big page is not the same as a declining page. The missed declines are mostly pages with a moderate CTR for their position that still fell 38% to 65%.</p>
 
 <h2 id="limitations">5 Limitations and honest framing</h2>
