@@ -1,0 +1,59 @@
+{
+  "run_label": "capstone-run-01",
+  "window": "features 1-15 March 2026, label 16-31 March 2026",
+  "pages": 2191,
+  "base_rate": 0.329,
+  "results": [
+    {
+      "split": "Random",
+      "model": "Logistic regression",
+      "AUC": 0.598,
+      "Precision@50": 0.44,
+      "Precision@100": 0.52
+    },
+    {
+      "split": "Random",
+      "model": "Random forest",
+      "AUC": 0.632,
+      "Precision@50": 0.54,
+      "Precision@100": 0.5
+    },
+    {
+      "split": "Random",
+      "model": "Peer-CTR rule",
+      "AUC": 0.57,
+      "Precision@50": 0.38,
+      "Precision@100": 0.42
+    },
+    {
+      "split": "Grouped",
+      "model": "Logistic regression",
+      "AUC": 0.56,
+      "Precision@50": 0.38,
+      "Precision@100": 0.39
+    },
+    {
+      "split": "Grouped",
+      "model": "Random forest",
+      "AUC": 0.555,
+      "Precision@50": 0.22,
+      "Precision@100": 0.32
+    },
+    {
+      "split": "Grouped",
+      "model": "Peer-CTR rule",
+      "AUC": 0.572,
+      "Precision@50": 0.4,
+      "Precision@100": 0.43
+    }
+  ],
+  "leakage": {
+    "honest_auc": 0.555,
+    "leaky_auc": 1.0,
+    "shuffled_auc": 0.487
+  },
+  "queue": {
+    "pages_in_queue": 1032,
+    "precision_at_50": 0.4
+  }
+}
