@@ -1,0 +1,9 @@
+{
+  "run_label": "w07-playbook-run-01",
+  "window": "features 1-15 March 2026, label 16-31 March 2026",
+  "pages_scored": 2191,
+  "pages_in_queue": 1032,
+  "base_rate": 0.329,
+  "queue_precision_at_50": 0.4,
+  "note": "rule-based queue; peer CTR taken from the same sample; observed and directional"
+}
